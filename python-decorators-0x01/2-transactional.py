@@ -1,25 +1,44 @@
-import sqlite3
 import functools
+import sqlite3
 
-# Decorator to log SQL queries
-def log_queries(func):
+def with_db_connection(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        query = kwargs.get("query") if "query" in kwargs else args[0]
-        print(f"[SQL LOG] Executing query: {query}")
-        return func(*args, **kwargs)
+        conn = sqlite3.connect("user.db")
+        try:
+            args = (conn, *args) # Prepend connection, so other args will not be lost
+            return func(*args, **kwargs)
+        finally:
+            conn.close()
     return wrapper
 
-# Example function using the decorator
-@log_queries
-def fetch_all_users(query):
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-    cursor.execute(query)
-    results = cursor.fetchall()
-    conn.close()
-    return results
+def transactional(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+            if result:
+                args[0].commit()
+                print("Success")
+            else:
+                raise Exception
+        except Exception:
+            args[0].rollback() 
+            print("Error")
+        return result
+    return wrapper
 
-# Fetch users while logging the query
-users = fetch_all_users(query="SELECT * FROM users")
-print(users)
+@with_db_connection 
+@transactional 
+def update_user_email(conn, user_id, new_email): 
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT user_id FROM user WHERE user_id={user_id}")
+    result = cursor.fetchone()
+    if not result: 
+        pass
+    else:
+        cursor.execute("UPDATE user SET email = ? WHERE user_id = ?", (new_email, user_id))
+    return result
+
+#### Update user's email with automatic transaction handling 
+update_user_email(user_id=5, new_email='mary@hotmail.com'.lower()) 
