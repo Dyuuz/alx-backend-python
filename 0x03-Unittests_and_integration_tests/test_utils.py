@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import unittest, math
 from parameterized import parameterized
 from typing import Mapping, Dict, Sequence, Any
