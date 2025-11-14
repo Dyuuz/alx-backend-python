@@ -9,7 +9,50 @@ import fixtures
 import utils
 
 
+class TestGithubOrgClient(unittest.TestCase):
+    """Unit tests for GithubOrgClient."""
 
+    @parameterized.expand([
+        ("google",),
+        ("abc",),
+    ])
+    @patch("client.get_json")
+    def test_org(self, org_name, mock_get_json):
+        """org returns the result of get_json called with the org url."""
+        mock_get_json.return_value = {"some": "payload"}
+        gh = GithubOrgClient(org_name)
+        self.assertEqual(gh.org(), mock_get_json.return_value)
+        mock_get_json.assert_called_once()
+
+    def test_public_repos_url(self):
+        """_public_repos_url returns repos_url from org payload."""
+        payload = {"repos_url": "https://api.github.com/orgs/test/repos"}
+        with patch.object(GithubOrgClient, "org", return_value=payload):
+            gh = GithubOrgClient("test")
+            self.assertEqual(gh._public_repos_url, payload["repos_url"])
+
+    @patch("client.get_json")
+    def test_public_repos(self, mock_get_json):
+        """public_repos returns list of repo names from get_json results."""
+        repos_payload = [
+            {"name": "repo1"},
+            {"name": "repo2"},
+        ]
+        mock_get_json.return_value = repos_payload
+        with patch.object(GithubOrgClient, "_public_repos_url",
+                          return_value="https://api.github.com/orgs/test/repos"):
+            gh = GithubOrgClient("test")
+            self.assertEqual(gh.public_repos(), ["repo1", "repo2"])
+            mock_get_json.assert_called_once()
+
+    @parameterized.expand([
+        ({"license": {"key": "my_license"}}, "my_license", True),
+        ({"license": {"key": "other_license"}}, "my_license", False),
+    ])
+    def test_has_license(self, repo, license_key, expected):
+        """has_license returns True when repo license matches license_key."""
+        gh = GithubOrgClient("test")
+        self.assertEqual(gh.has_license(repo, license_key), expected)
 
 
 
