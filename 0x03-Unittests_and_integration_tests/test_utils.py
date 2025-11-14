@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-import unittest, math
+import unittest
+from unittest.mock import patch, Mock
 from parameterized import parameterized
-from typing import Mapping, Dict, Sequence, Any
+from utils import access_nested_map, get_json
+from typing import Mapping, Sequence, Any
 
 
 class TestAccessNestedMap(unittest.TestCase):
