@@ -54,7 +54,6 @@ class TestGithubOrgClient(unittest.TestCase):
         gh = GithubOrgClient("test")
         self.assertEqual(gh.has_license(repo, license_key), expected)
 
-
 @parameterized_class(("org_payload", "repos_payload", "expected_repos",
                       "apache2_repos"), [
     (fixtures.org_payload, fixtures.repos_payload,
@@ -62,7 +61,6 @@ class TestGithubOrgClient(unittest.TestCase):
 ])
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient.public_repos using fixtures."""
-
     @classmethod
     def setUpClass(cls):
         """Start patcher for requests.get to return fixtures."""
