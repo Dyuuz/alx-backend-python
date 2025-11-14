@@ -7,27 +7,26 @@ import utils
 
 
 class TestAccessNestedMap(unittest.TestCase):
-    """
-    Tests for the access_nested_map function.
-    """
+    """Tests for access_nested_map."""
 
     @parameterized.expand([
         ({"a": 1}, ("a",), 1),
         ({"a": {"b": 2}}, ("a",), {"b": 2}),
         ({"a": {"b": 2}}, ("a", "b"), 2),
     ])
-    def test_access_nested_map(self, nested_map: Mapping, path: Sequence, expected: Any):
-        """Test normal access of nested maps."""
-        self.assertEqual(access_nested_map(nested_map, path), expected)
+    def test_access_nested_map(self, nested_map, path, expected):
+        """access_nested_map returns the expected value for given path."""
+        self.assertEqual(utils.access_nested_map(nested_map, path), expected)
 
     @parameterized.expand([
-        ({}, ("a",), KeyError),
-        ({"a": 1}, ("a", "b"), KeyError),
+        ({}, ("a",)),
+        ({"a": 1}, ("a", "b")),
     ])
-    def test_access_nested_map_exception(self, nested_map: Mapping, path: Sequence, expected_exception):
-        """Test access that raises KeyError."""
-        with self.assertRaises(expected_exception):
-            access_nested_map(nested_map, path)     
+    def test_access_nested_map_exception(self, nested_map, path):
+        """access_nested_map raises KeyError for invalid path."""
+        with self.assertRaises(KeyError) as ctx:
+            utils.access_nested_map(nested_map, path)
+        self.assertEqual(str(ctx.exception), repr(path[-1]))   
 
 
 class TestGetJson(unittest.TestCase):
