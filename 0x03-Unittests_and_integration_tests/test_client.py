@@ -55,4 +55,41 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(gh.has_license(repo, license_key), expected)
 
 
+@parameterized_class(("org_payload", "repos_payload", "expected_repos",
+                      "apache2_repos"), [
+    (fixtures.org_payload, fixtures.repos_payload,
+     fixtures.expected_repos, fixtures.apache2_repos),
+])
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """Integration tests for GithubOrgClient.public_repos using fixtures."""
 
+    @classmethod
+    def setUpClass(cls):
+        """Start patcher for requests.get to return fixtures."""
+        cls.get_patcher = patch("utils.requests.get")
+        mocked_get = cls.get_patcher.start()
+
+        # Create two mocked responses: one for the org payload and one for repos
+        mock_resp_org = Mock()
+        mock_resp_org.json.return_value = cls.org_payload
+
+        mock_resp_repos = Mock()
+        mock_resp_repos.json.return_value = cls.repos_payload
+
+        # requests.get will be called multiple times; return responses in order
+        mocked_get.side_effect = [mock_resp_org, mock_resp_repos]
+
+    @classmethod
+    def tearDownClass(cls):
+        """Stop the requests.get patcher."""
+        cls.get_patcher.stop()
+
+    def test_public_repos(self):
+        """public_repos returns expected repos from fixtures."""
+        gh = GithubOrgClient(self.org_payload.get("login"))
+        self.assertEqual(gh.public_repos(), self.expected_repos)
+
+    def test_public_repos_with_license(self):
+        """public_repos can filter repos by license (apache-2.0 example)."""
+        gh = GithubOrgClient(self.org_payload.get("login"))
+        self.assertEqual(gh.public_repos(license="apache-2.0"), self.apache2_repos)
