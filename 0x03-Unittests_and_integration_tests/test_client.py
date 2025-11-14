@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Unittests and integration tests for client.GithubOrgClient."""
+
 import unittest
 from parameterized import parameterized, parameterized_class
 from unittest.mock import patch, Mock
@@ -39,8 +40,10 @@ class TestGithubOrgClient(unittest.TestCase):
             {"name": "repo2"},
         ]
         mock_get_json.return_value = repos_payload
-        with patch.object(GithubOrgClient, "_public_repos_url",
-                          return_value="https://api.github.com/orgs/test/repos"):
+        with patch.object(
+            GithubOrgClient, "_public_repos_url",
+            return_value="https://api.github.com/orgs/test/repos"
+        ):
             gh = GithubOrgClient("test")
             self.assertEqual(gh.public_repos(), ["repo1", "repo2"])
             mock_get_json.assert_called_once()
@@ -54,13 +57,21 @@ class TestGithubOrgClient(unittest.TestCase):
         gh = GithubOrgClient("test")
         self.assertEqual(gh.has_license(repo, license_key), expected)
 
-@parameterized_class(("org_payload", "repos_payload", "expected_repos",
-                      "apache2_repos"), [
-    (fixtures.org_payload, fixtures.repos_payload,
-     fixtures.expected_repos, fixtures.apache2_repos),
-])
+
+@parameterized_class(
+    ("org_payload", "repos_payload", "expected_repos", "apache2_repos"),
+    [
+        (
+            fixtures.org_payload,
+            fixtures.repos_payload,
+            fixtures.expected_repos,
+            fixtures.apache2_repos,
+        )
+    ]
+)
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient.public_repos using fixtures."""
+
     @classmethod
     def setUpClass(cls):
         """Start patcher for requests.get to return fixtures."""
@@ -90,4 +101,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     def test_public_repos_with_license(self):
         """public_repos can filter repos by license (apache-2.0 example)."""
         gh = GithubOrgClient(self.org_payload.get("login"))
-        self.assertEqual(gh.public_repos(license="apache-2.0"), self.apache2_repos)
+        self.assertEqual(
+            gh.public_repos(license="apache-2.0"),
+            self.apache2_repos
+        )
