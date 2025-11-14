@@ -1,0 +1,8 @@
+#!/bin/bash
+kubectl apply -f blue_deployment.yaml
+echo "About to roll out update to blue deployment"
+kubectl rollout restart deployment django-app-deployment
+echo "Monitoring the progress..."
+kubectl rollout status
+echo "Checking the pods..."
+kubectl get pods
