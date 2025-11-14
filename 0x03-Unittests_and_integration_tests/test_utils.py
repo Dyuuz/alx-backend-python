@@ -29,7 +29,8 @@ class TestAccessNestedMap(unittest.TestCase):
             utils.access_nested_map(nested_map, path)
         self.assertEqual(str(ctx.exception), repr(path[-1]))
 
-
+@parameterized.expand([...])
+@patch("utils.requests.get")
 class TestGetJson(unittest.TestCase):
     """Tests for get_json."""
 
