@@ -1,27 +1,31 @@
+# chats/permissions.py
 from rest_framework import permissions
 from .models import Conversation
 
 class IsParticipantOfConversation(permissions.BasePermission):
     """
-    Only participants of a conversation can GET or POST messages/conversations.
+    Permission to ensure:
+    1. Only authenticated and active users can access the API.
+    2. Only participants of a conversation can send, view, update, and delete messages.
     """
 
     def has_permission(self, request, view):
-        # Allow only authenticated and active users
+        # Only authenticated and active users can access the API
         return request.user.is_authenticated and request.user.is_active
 
     def has_object_permission(self, request, view, obj):
-        # Check if user is a participant
+        """
+        Object-level permission:
+        Only allow access if the user is a participant in the conversation
+        or the message's conversation.
+        """
+        # If obj is a Conversation
         if isinstance(obj, Conversation):
-            is_participant = request.user in obj.participants.all()
-        elif hasattr(obj, 'conversation'):
-            is_participant = request.user in obj.conversation.participants.all()
-        else:
-            return False
+            return request.user in obj.participants.all()
 
-        # Hardcode allowed methods: GET and POST
-        if request.method in ["GET", "POST"]:
-            return is_participant
+        # If obj is a Message (or has a conversation)
+        if hasattr(obj, 'conversation'):
+            return request.user in obj.conversation.participants.all()
 
-        # Deny access for all other methods
+        # Deny by default
         return False
