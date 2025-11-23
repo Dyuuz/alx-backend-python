@@ -52,11 +52,16 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',  
-    'chats.middleware.RequestLoggingMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+     
+    # Custom Middleware
+    'chats.middleware.RequestLoggingMiddleware', 
+    'chats.middleware.RestrictAccessByTimeMiddleware',
+    'chats.middleware.OffensiveLanguageMiddleware',
+    'chats.middleware.RolepermissionMiddleware',
 ]
 
-ROOT_URLCONF = 'messaging_app.urls'
+ROOT_URLCONF = 'Django-Middleware-0x03.urls'
 
 TEMPLATES = [
     {
@@ -73,7 +78,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'messaging_app.wsgi.application'
+WSGI_APPLICATION = 'Django-Middleware-0x03.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -140,4 +145,48 @@ SIMPLE_JWT = {
     "USER_ID_FIELD": env("USER_ID_FIELD"),
 }
 
+# settings.py
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False, # Keep existing loggers enabled
+
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+
+    'handlers': {
+        'console': {
+            'level': 'INFO', # Log INFO level and above to console
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'level': 'DEBUG', # Log DEBUG level and above to file
+            'class': 'logging.FileHandler',
+            'filename': f'{BASE_DIR}/requests.log', # Specify your log file path
+            'formatter': 'verbose',
+        },
+    },
+
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True, # Allow logs to propagate to parent loggers
+        },
+        'chats': { # Replace 'myapp' with your app's name
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG', 'INFO'
+            'propagate': False, # Prevent propagation to 'django' logger if desired
+        },
+    },
+}
+X_FRAME_OPTIONS = 'DENY'
