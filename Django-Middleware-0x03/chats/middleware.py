@@ -74,3 +74,27 @@ class OffensiveLanguageMiddleware:
         if x_forwarded_for:
             return x_forwarded_for.split(",")[0].strip()
         return request.META.get("REMOTE_ADDR")
+    
+
+class RolePermissionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        user = request.user
+
+        # Ensure user is authenticated
+        if not user.is_authenticated:
+            return HttpResponseForbidden("You must be logged in to access this resource.")
+
+        # Expecting a role field on the user model (e.g., user.role = "admin")
+        # Allowed roles
+        allowed_roles = ["admin", "moderator"]
+
+        # If user role not allowed → block
+        user_role = getattr(user, "role", None)
+
+        if user_role not in allowed_roles:
+            return HttpResponseForbidden("You do not have permission to perform this action.")
+
+        return self.get_response(request)
