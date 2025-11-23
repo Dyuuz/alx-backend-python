@@ -1,26 +1,29 @@
-from rest_framework.permissions import BasePermission
+from rest_framework import permissions
 from .models import Conversation
 
-class IsParticipantOfConversation(BasePermission):
+class IsParticipantOfConversation(permissions.BasePermission):
     """
-    Custom permission to allow access only to users who are:
-    - Active and authenticated
-    - A participant of at least one conversation
-    - Performing safe HTTP methods (GET, POST, etc.) if applicable
+    Custom permission to ensure that users can only access
+    conversations and messages they are a participant of.
     """
 
     def has_permission(self, request, view):
-        # Allow non-modifying methods without checking conversation participation
-        safe_method = request.method not in ["PUT", "PATCH", "DELETE"]
+        """
+        General permission: allow authenticated and active users.
+        """
+        return request.user.is_authenticated and request.user.is_active
 
-        # Check if the user is active and authenticated
-        if not (request.user.is_authenticated and request.user.is_active):
-            return False
+    def has_object_permission(self, request, view, obj):
+        """
+        Object-level permission: only allow access if the user is
+        a participant in the conversation or the owner of the message.
+        """
+        # For Conversation objects
+        if isinstance(obj, Conversation):
+            return request.user in obj.participants.all()
 
-        # Check if the user is a participant in any conversation
-        is_participant = Conversation.objects.filter(
-            participants=request.user.user_id
-        ).exists()
+        # For Message objects (assuming Message model has conversation and sender fields)
+        if hasattr(obj, 'conversation'):
+            return request.user in obj.conversation.participants.all()
 
-        # Final permission: safe method and participant
-        return safe_method and is_participant
+        return False
