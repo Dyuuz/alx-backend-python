@@ -1,25 +1,32 @@
-# Use official Python image
-FROM python:3.10
+# -p
+FROM python:3.10-alpine
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Set work directory
+# Install system dependencies for building Python packages
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    openssl-dev \
+    zlib-dev \
+    jpeg-dev \
+    mariadb-connector-c-dev \
+    pkgconfig
+
+    # Install Python dependencies
+COPY requirements.txt /
+RUN pip install --upgrade pip \
+    && pip install -r /requirements.txt
+
+# Copy project files
+COPY . /app/
 WORKDIR /app
 
-# Copy requirements file
-COPY requirements.txt /app/
-
-# Install dependencies
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
-# Copy project code
-COPY . /app/
-
-# Expose default Django port
+# Expose the port
 EXPOSE 8000
 
-# Default command to run the app
+# Default command
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
