@@ -11,7 +11,7 @@ from .pagination import CustomPagination
 from datetime import datetime
 
 class ALLUserViewset(ViewSet):
-    http_method_names = ['GET']
+    http_method_names = ['get']
     queryset = User.objects.all()     
     
     def list(self, request):
@@ -21,7 +21,7 @@ class ALLUserViewset(ViewSet):
 # MessageFilter
 # django-filters
 class ConversationViewSet(ViewSet, ListAPIView):
-    http_method_names = ['GET', 'POST']
+    http_method_names = ['get', 'post']
     permission_classes = [IsParticipantOfConversation]
     serializer_class = ConversationSerializer
     queryset = Conversation.objects.all()
@@ -43,7 +43,7 @@ class ConversationViewSet(ViewSet, ListAPIView):
 class MessageViewSet(ViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
-    http_method_names = ['GET', 'POST']
+    http_method_names = ['get', 'post']
     serializer_class = MessageSerializer
     queryset = Message.objects.all()
 

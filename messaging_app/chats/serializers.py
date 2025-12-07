@@ -33,9 +33,8 @@ class ConversationSerializer(serializers.Serializer):
     participant = serializers.UUIDField(format="hex_verbose", read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
     message = MessageSerializer()
-    message_count = serializers.SerializerMethodField()
 
-    def get_message_count(self, obj):
-        # Assuming `obj` has a related_name 'messages' for Message model
-        return obj.messages.count()
+    
+
+
     

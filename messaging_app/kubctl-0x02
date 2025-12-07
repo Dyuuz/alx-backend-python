@@ -1,0 +1,25 @@
+#!/bin/bash
+echo "About to deploy the blue deployment file"
+kubectl apply -f blue_deployment.yaml
+echo "Getting deployment list"
+kubectl get deployments
+echo "Getting pods"
+kubectl get pods
+sleep 1s
+
+echo "About to deploy the green deployment file"
+kubectl apply -f green_deployment.yaml --force
+echo "Getting deployment list"
+kubectl get deployments
+echo "Getting pods"
+kubectl get pods
+sleep 1s
+
+echo "Deploying service for the green deployment"  
+kubectl apply -f kubeservice.yaml
+echo "Getting svc"
+kubectl get svc
+echo "Successfully switched from blue to green deployments"
+echo "Congratulation, your latest version is live. 🔥"
+
+

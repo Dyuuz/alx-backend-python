@@ -1,0 +1,32 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Git and version control
+.git/
+.gitignore
+
+# OS/system files
+.DS_Store
+Thumbs.db
+
+# Editor configs and caches
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Django stuff
+*.log
+staticfiles/
+media/
+
+# Docker
+Dockerfile
+docker-compose.yml
