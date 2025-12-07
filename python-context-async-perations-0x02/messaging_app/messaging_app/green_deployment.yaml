@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-app-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: django-app
+  template:
+    metadata:
+      labels:
+        app: django-app
+    spec:
+      containers:
+      - name: messaging-app
+        image: limtech001/messaging_app:v1.0
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DJANGO_SETTINGS_MODULE
+          value: messaging_app.settings
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wrk-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: wrk
+        image: williamyeh/wrk
+        command: ["wrk"]
+        args: ["-t4", "-c100", "-d30s", "http://messagingservice.default.svc.cluster.local:80/
+"]
+      restartPolicy: Never
+  backoffLimit: 0
+

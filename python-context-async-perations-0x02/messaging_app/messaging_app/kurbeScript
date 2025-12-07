@@ -1,0 +1,8 @@
+#!/bin/bash
+echo "About to start Kubernetes"
+minikube start
+echo "About to verify that cluster is running"
+kubectl cluster-info
+echo "About to retrieve available pods"
+kubectl get pods
+echo "Script automation ended"

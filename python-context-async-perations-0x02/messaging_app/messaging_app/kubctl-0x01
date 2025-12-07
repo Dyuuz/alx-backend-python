@@ -1,0 +1,8 @@
+#!/bin/bash
+echo "About to scale the pods"
+kubectl scale deployment django-app-deployment --replicas=3
+echo "Getting the running pods"
+kubectl get pods
+echo "About to perform load testing"
+wrk -t4 -c100 -d30s 
+kubectl top pod

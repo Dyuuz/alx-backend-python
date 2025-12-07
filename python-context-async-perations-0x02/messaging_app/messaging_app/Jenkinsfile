@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            agent {
+                dockerfile {
+                    filename 'messaging_app/Dockerfile'
+                }
+            }
+
+            steps {
+                echo 'Building...'
+                git branch: 'main',
+                    url: 'https://github.com/Limah-T/alx-backend-python.git',
+                    credentialsId: 'github-creds'
+
+                echo 'Installing dependencies...'
+                sh 'pip install -r messaging_app/requirements.txt'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'pytest messaging_app/ --junitxml=report.xml'
+            }
+            post {
+                always {
+                    junit 'report.xml'
+                }
+            }
+        }
+    }
+}
