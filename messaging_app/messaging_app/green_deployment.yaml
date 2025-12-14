@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: messaging-app-blue
+  name: messaging-app-green
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: messaging-app
-      version: blue
+      version: green
   template:
     metadata:
       labels:
         app: messaging-app
-        version: blue
+        version: green
     spec:
       containers:
         - name: messaging-app
-          image: dyuuz/messaging-app:blue
+          image: dyuuz/messaging-app:green
           ports:
             - containerPort: 8000
